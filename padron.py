@@ -21,12 +21,21 @@ def tomarDatosPadronSybase(op, codigo):
 
     if op == "1":
         # Trae padron por codigo padron
+
+
             cursor.execute("select id, padron_apelli, padron_nombre, 1 as codigoEmpresa,ctacte_condiva.odoo_codigo as padron_ivacon, padron_docnro,  padron_observa, padron_catego, ctacte_padron.codigo_postal, 'AR' as paisCodigo, ctacte_provincia.provi_descri as provincia, ctacte_provincia.odoo_codigo as pciaCodigo, ctacte_padron.codigo_docu, "
             "ctacte_localidad.loc_localidad  as ciudad, padron_domici, padron_domnro, padron_codigo, padron_telcar, padron_telnro, '0' as cel, 'sistemas@kernelinformatica.com.ar' as email, "
             "padron_cuit11, padron_cuil11,  ctacte_condiva.descripcion as ivaCondicionNombre  from ctacte_padron, ctacte_localidad, ctacte_provincia, ctacte_condiva "
             "where padron_codigo = "+str(codigo)+ " and ctacte_localidad.codigo_postal = ctacte_padron.codigo_postal  "
             "and ctacte_provincia.codigo_provi = ctacte_localidad.codigo_provi "
             "and ctacte_condiva.condiva = ctacte_padron.padron_ivacon")
+    elif op == "-1":
+        cursor.execute("select id, padron_apelli, padron_nombre, 1 as codigoEmpresa, ctacte_condiva.odoo_codigo as padron_ivacon, padron_docnro, padron_observa, padron_catego, ctacte_padron.codigo_postal, 'AR' as paisCodigo, ctacte_provincia.provi_descri as provincia, ctacte_provincia.odoo_codigo as pciaCodigo, codigo_docu,  "
+            "ctacte_localidad.loc_localidad  as ciudad, padron_domici, padron_domnro, padron_codigo, padron_telcar, padron_telnro, '0' as cel, 'sistemas@kernelinformatica.com.ar' as email, "
+            "padron_cuit11, padron_cuil11 , ctacte_condiva.descripcion as ivaCondicionNombre from ctacte_padron, ctacte_localidad, ctacte_provincia , ctacte_condiva "
+            "where ctacte_padron.padron_codigo = "+str(codigo)+ " and ctacte_localidad.codigo_postal = ctacte_padron.codigo_postal"
+            " and ctacte_provincia.codigo_provi = ctacte_localidad.codigo_provi "
+            "and ctacte_condiva.condiva = ctacte_padron.padron_ivacon ")
     elif op == "2":
         # Trae el pádron por categoria
         if codigo == 0:
@@ -153,12 +162,12 @@ def actualizarDatosPadron(datos):
 
         # domain = [('name','like',descripcion)]
         domain = [('street2', '=', int(codigoPadron))]
+
         id = api.execute_kw(db, str(uid), password, "res.partner", "search", [domain])
 
         if not id:
             # si el cliente no existe, crea uno nuevo
             print("--> Se agrego el padron "+nombreApellido)
-            breakpoint()
             r = api.execute_kw(db, uid, password, "res.partner", "create", [{'name': nombreApellido,
                                                                                 'street2': int(codigoPadron),
                                                                                 'street': str(domicilio),
@@ -172,8 +181,13 @@ def actualizarDatosPadron(datos):
                                                                                 'vat' : str(cuitCuil),
                                                                                 'zip' : int(codigoPostal)} ])
         else:
-            # si el cliente existe se actualiza  '|10n_ar_afip_responsibility_type_id' : int(ivaCondicion),
-            r = api.execute_kw(db, uid, password, "res.partner", "write", [id, {'name': nombreApellido,
+            if abm == '-1':
+              # Borra un registro del padron
+              r = api.execute_kw(db, uid, password, "res.partner", "unlink", [id])
+              print("--> Se borra el cliente " + nombreApellido)
+            else:
+                # si el cliente existe se actualiza  '|10n_ar_afip_responsibility_type_id' : int(ivaCondicion),
+                r = api.execute_kw(db, uid, password, "res.partner", "write", [id, {'name': nombreApellido,
                                                                                 'street2': int(codigoPadron),
                                                                                 'street': str(domicilio),
                                                                                 'city': str(codigoCiudad),
@@ -192,7 +206,7 @@ def main():
     #op = 0: codigo = 0 'Procesa todo el padron'
     #op = 1, codigo = xxxxx: 'Procesa por codigo de padron'
     #op = 2, codigo = xx: Procesa por codigo de categoria'
-    tomarDatosPadronSybase("1",23476)
+    tomarDatosPadronSybase("-1",23476)
     #tomarDatosPadronSybase("1", 2717)
     procesarPadron(datos)
     actualizarDatosPadron(datos)

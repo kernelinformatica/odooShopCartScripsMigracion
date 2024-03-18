@@ -86,8 +86,8 @@ def actualizarDatosArticulos(datos):
 
             #r = api.execute_kw(db, uid, password, "product.template", "write", [id, {'id': int(id_auto), 'name': str(descripcion), 'list_price': float(precio), 'barcode': codigoBarra, 'categ_id' : int(categoriaOdoo), 'standard_price' : float(precioCosto)} ])
             if abm == "-1" :
-                print("--> Se borra el registro: "+codigoArticulo+" id auto: "+str(id_auto)+" | Consultar cual es la mejor manera")
-
+                print("--> Se borra el registro: "+codigoArticulo+" id auto: "+str(id_auto))
+                r = api.execute_kw(db, uid, password, "product.template", "unlink", [id])
             else:
                 r = api.execute_kw(db, uid, password, "product.template", "write", [id, {'id': int(id_auto), 'name': str(descripcion),'barcode': codigoBarra, 'categ_id': int(categoriaOdoo), 'standard_price': float(precioCosto)}])
                 print("--> Se actualizo el articulo " + descripcion)
@@ -96,14 +96,12 @@ def actualizarDatosArticulos(datos):
 
 # Función encargada de ejecutar las tareas paso a paso
 def main():
-    #tomar_datos()
+    # Si "op = -1" Borra un producto especificando su codigo
+    # Si "op = 0" Traer todos los productos
+    # Si "op = 1" Busca un artículo por código y código de barra
+    # Si "op = 2" Busca un articulo por codigo de grupo por la variable codigo"
 
-    # Si "op = -1" borra un producto especificando su codigo
-    # Si "op = 0" traer todos los productos
-    # Si "op = 1" busca un artículo por código y código de barra
-    # Si "op = 2" busca un articulo por codigo de grupo por la variable codigo"
-
-    tomarDatosArticulosSybase("2", "31")
+    tomarDatosArticulosSybase("-1", str(112699))
     procesarArticulos(datos)
     actualizarDatosArticulos(datos)
 
