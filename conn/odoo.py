@@ -1,0 +1,1 @@
+db, user, password = "kernelprueba", "sistemas@kernelinformatica.com.ar", "admin"
